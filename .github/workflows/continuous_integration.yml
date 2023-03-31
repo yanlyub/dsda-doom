@@ -17,15 +17,6 @@ jobs:
       matrix:
         config:
           - {
-              name: "MSVC x64",
-              os: windows-latest,
-              build_type: "Release",
-              extra_options: "-A x64",
-              package_name: "vs_x64",
-              vcpkg_triplet: x64-windows,
-              shell: bash,
-            }
-          - {
               name: "MSYS2 UCRT64",
               os: windows-latest,
               build_type: "Release",
@@ -39,19 +30,10 @@ jobs:
               name: "Linux GCC",
               os: ubuntu-latest,
               build_type: "Release",
-              extra_options: "-G Ninja",
+              extra_options: "-G Ninja -D CMAKE_C_FLAGS=\"-O2 -march=silvermont -maes\" -D CMAKE_CXX_FLAGS=\"-O2 -march=silvermont -maes\"",
               package_name: "linux_gcc",
               shell: bash,
             }
-          - {
-              name: "macOS Clang",
-              os: macos-latest,
-              build_type: "Release",
-              extra_options: "-G Ninja",
-              package_name: "macos",
-              shell: bash,
-            }
-
     steps:
       - uses: actions/checkout@v4
 
@@ -151,3 +133,20 @@ jobs:
 
       - name: Build
         run: cmake --build build --config ${{ matrix.config.build_type }}
+
+      - name: Upload artifact W
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binary
+          path: |
+            build/dsda-doom.wad
+            build/dsda-doom.exe
+      - name: Upload artifact L
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary
+          path: |
+            build/dsda-doom.wad
+            build/dsda-doom
